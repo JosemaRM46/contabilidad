@@ -49,11 +49,9 @@ app.listen(port, () => {
     const { id } = req.params;
     const { monto } = req.body;
   
-    // Definir los códigos específicos que deben guardar en 'depreciacion'
     const codigosDepreciacion = [11311, 12221, 12231, 12241, 12251, 12261, 12271, 12281];
     const idConvertido = Number(id);
     
-    // Obtener el código de la cuenta
     db.query('SELECT codigo FROM cuentas WHERE id = ?', [idConvertido], (err, results) => {
         if (err) {
             console.error('❌ Error al obtener el código de la cuenta:', err);
@@ -64,7 +62,7 @@ app.listen(port, () => {
             return res.status(404).send('Cuenta no encontrada');
         }
 
-        const codigoCuenta = Number(results[0].codigo); // Asegurar que sea un número
+        const codigoCuenta = Number(results[0].codigo);
         console.log('🔍 Código de cuenta obtenido:', codigoCuenta, 'Tipo:', typeof codigoCuenta);
 
         const fieldToUpdate = codigosDepreciacion.includes(codigoCuenta) ? 'depreciacion' : 'montoSinDepreciacion';
