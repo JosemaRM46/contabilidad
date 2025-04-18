@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
+import Navbar from '@/components/Navbar';
+import withAuth from '@/components/withAuth';
 
 interface Cuenta {
   id: number;
@@ -17,7 +19,7 @@ interface Cuenta {
   diferencia: number | null;
 }
 
-export default function Page() {
+const Page = () => {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [error, setError] = useState<string>('');
   const [codigo, setCodigo] = useState<string>('');
@@ -26,6 +28,11 @@ export default function Page() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [empresa, setEmpresa] = useState<string>('');
   const [year, setYear] = useState<string>('');
+  
+
+  
+
+  
 
   const getCuentasConValores = async () => {
     try {
@@ -212,80 +219,85 @@ export default function Page() {
   
 
   return (
-    <div className="min-h-screen bg-blue-100 flex flex-col items-center justify-center text-black p-4">
-      <h1 className="text-4xl font-bold mb-4">Generar Reporte de Cuentas</h1>
+    <div>
+      <Navbar />
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center text-black p-4 overflow-hidden">
+        <h1 className="text-4xl font-bold mb-4 text-gray-800">Generar Reporte de Cuentas</h1>
 
-      <button
-        onClick={() => {
-          setShowForm(true);
-          getCuentasConValores();
-        }}
-        className="w-full p-2 bg-purple-500 text-white rounded hover:bg-purple-700 mb-4"
-      >
-        Generar Balance
-      </button>
-
-      {showForm && (
-        <div className="bg-white p-4 rounded shadow-md">
-          <h2 className="text-lg font-bold mb-2">Información del Reporte</h2>
-          <input
-            type="text"
-            value={empresa}
-            onChange={(e) => setEmpresa(e.target.value)}
-            placeholder="Nombre de la empresa"
-            className="w-full p-2 border border-gray-300 rounded mb-2"
-          />
-          <input
-            type="text"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            placeholder="Año"
-            className="w-full p-2 border border-gray-300 rounded mb-2"
-          />
-          <button
-            onClick={generateBalance}
-            className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-700"
-          >
-            Generar PDF
-          </button>
-        </div>
-      )}
-
-      <div className="my-4">
-        <input
-          type="text"
-          value={codigo}
-          onChange={(e) => setCodigo(e.target.value)}
-          placeholder="Ingrese código de cuenta"
-          className="p-2 border border-gray-300 rounded"
-        />
         <button
-          onClick={handleSearchCodigo}
-          className="ml-2 p-2 bg-green-500 text-white rounded hover:bg-green-700"
+          onClick={() => {
+            setShowForm(true);
+            getCuentasConValores();
+          }}
+          className="w-full p-2 bg-gray-700 text-white rounded hover:bg-gray-600 mb-4"
         >
-          Buscar Cuenta
+          Generar Balance
         </button>
-      </div>
 
-      {cuentaSeleccionada && (
+        {showForm && (
+          <div className="bg-white p-4 rounded shadow-md">
+            <h2 className="text-lg font-bold mb-2 text-gray-900">Información del Reporte</h2>
+            <input
+              type="text"
+              value={empresa}
+              onChange={(e) => setEmpresa(e.target.value)}
+              placeholder="Nombre de la empresa"
+              className="w-full p-2 border border-gray-400 rounded mb-2"
+            />
+            <input
+              type="text"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              placeholder="Año"
+              className="w-full p-2 border border-gray-400 rounded mb-2"
+            />
+            <button
+              onClick={generateBalance}
+              className="w-full p-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+            >
+              Generar PDF
+            </button>
+          </div>
+        )}
+
         <div className="my-4">
-          <p>Código: {cuentaSeleccionada.codigo}</p>
-          <p>Nombre: {cuentaSeleccionada.nombre}</p>
           <input
-            type="number"
-            value={monto || ''}
-            onChange={(e) => setMonto(Number(e.target.value))}
-            placeholder="Ingrese monto"
-            className="p-2 border border-gray-300 rounded"
+            type="text"
+            value={codigo}
+            onChange={(e) => setCodigo(e.target.value)}
+            placeholder="Ingrese código de cuenta"
+            className="p-2 border border-gray-400 rounded"
           />
           <button
-            onClick={handleUpdateMonto}
-            className="ml-2 p-2 bg-yellow-500 text-white rounded hover:bg-yellow-700"
+            onClick={handleSearchCodigo}
+            className="ml-2 p-2 bg-gray-700 text-white rounded hover:bg-gray-600"
           >
-            Actualizar Monto
+            Buscar Cuenta
           </button>
         </div>
-      )}
+
+        {cuentaSeleccionada && (
+          <div className="my-4">
+            <p className="text-gray-900">Código: {cuentaSeleccionada.codigo}</p>
+            <p className="text-gray-900">Nombre: {cuentaSeleccionada.nombre}</p>
+            <input
+              type="number"
+              value={monto || ''}
+              onChange={(e) => setMonto(Number(e.target.value))}
+              placeholder="Ingrese monto"
+              className="p-2 border border-gray-400 rounded"
+            />
+            <button
+              onClick={handleUpdateMonto}
+              className="ml-2 p-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+            >
+              Actualizar Monto
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+export default withAuth(Page);

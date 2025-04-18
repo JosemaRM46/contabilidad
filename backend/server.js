@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const db = require('./services/db');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
@@ -18,6 +20,83 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
 });
+
+
+// Registro de usuario
+app.post('/api/auth/register', (req, res) => {
+  const { nombre, correo, contraseña } = req.body;
+
+  bcrypt.hash(contraseña, 10, (err, hashedPassword) => {
+    if (err) {
+      console.error('Error al hashear contraseña:', err);
+      return res.status(500).json({ error: 'Error al procesar la contraseña' });
+    }
+
+    const sql = 'INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)';
+
+    db.query(sql, [nombre, correo, hashedPassword], (error, results) => {
+      if (error) {
+        console.error('Error al registrar usuario:', error);
+        return res.status(500).json({ error: 'Error al registrar usuario' });
+      }
+
+      res.status(201).json({ message: 'Usuario registrado correctamente' });
+    });
+  });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const { correo, contraseña } = req.body;
+
+  console.log('Datos de inicio de sesión:', { correo, contraseña });
+
+  const sql = 'SELECT * FROM usuarios WHERE correo = ?';
+  db.query(sql, [correo], (err, results) => {
+    if (err) {
+      console.error('Error en la base de datos:', err);
+      return res.status(500).json({ error: 'Error al iniciar sesión' });
+    }
+
+    if (results.length === 0) {
+      console.log(`Usuario con correo ${correo} no encontrado`);
+      return res.status(401).json({ error: 'Correo no registrado' });
+    }
+
+    const usuario = results[0];
+
+    // Verifica si la contraseña enviada coincide con la almacenada
+    console.log('Contraseña enviada:', contraseña);
+    console.log('Contraseña almacenada (hash):', usuario.contraseña);
+
+    bcrypt.compare(contraseña, usuario.contraseña, (err, esValida) => {
+      if (err || !esValida) {
+        console.log('Contraseña incorrecta para el usuario:', correo);
+        return res.status(401).json({ error: 'Contraseña incorrecta' });
+      }
+
+      const jwt = require('jsonwebtoken');
+      const token = jwt.sign(
+        { id: usuario.id, nombre: usuario.nombre },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+
+      console.log('Login exitoso para el usuario:', correo);
+
+      res.json({
+        token,
+        usuario: {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          correo: usuario.correo,
+        },
+      });
+    });
+  });
+});
+
+
+
 
 
 
@@ -156,7 +235,8 @@ app.get('/cuentas', (req, res) => {
         null as Totales,
         0 as isTotal
       FROM cuentas 
-      WHERE parent_id != 122 OR parent_id IS NULL
+      WHERE (parent_id != 122 OR parent_id IS NULL)
+       AND codigo NOT IN ('1131', '11311')
   
       UNION ALL
   
@@ -187,6 +267,36 @@ app.get('/cuentas', (req, res) => {
         0
       FROM cuentas 
       WHERE depreciacion IS NOT NULL AND parent_id = 122
+
+      UNION ALL
+
+      SELECT 
+        tipo,
+        grupo,
+        subgrupo,
+        codigo,
+        nombre,
+        montoSinDepreciacion,
+        monto,
+        NULL,
+        0
+      FROM cuentas
+      WHERE codigo = '1131'
+
+      UNION ALL
+
+      SELECT 
+        tipo,
+        grupo,
+        subgrupo,
+        codigo,
+        nombre,
+        depreciacion AS montoSinDepreciacion,
+        monto,
+        NULL,
+        0
+      FROM cuentas
+      WHERE codigo = '11311'
   
       ORDER BY codigo;
     `;
