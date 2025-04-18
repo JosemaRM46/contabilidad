@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -68,6 +69,12 @@ export default function LoginPage() {
         <button type="submit" className="w-full bg-gray-700 text-white p-2 rounded hover:bg-gray-600">
           Iniciar Sesión
         </button>
+        <div className="text-center text-sm pt-3">
+          <span>¿No tienes una cuenta? </span>
+          <Link href="/register" className="text-blue-500 hover:underline">
+            Regístrate aquí
+          </Link>
+        </div>
       </form>
     </div>
     </div>

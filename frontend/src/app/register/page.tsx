@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface RegistroUsuario {
   nombre: string;
@@ -19,6 +21,7 @@ const RegistroPage = () => {
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -27,7 +30,8 @@ const RegistroPage = () => {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setMensaje('');
     setError('');
 
@@ -53,6 +57,7 @@ const RegistroPage = () => {
       if (response.ok) {
         setMensaje('Usuario registrado correctamente');
         setFormData({ nombre: '', correo: '', contraseña: '' });
+        router.push('/login'); // Redirige a login después de registro exitoso
       } else {
         setError(data.error || 'Error al registrar usuario');
       }
@@ -64,48 +69,60 @@ const RegistroPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-white">
+    <div>
       <Navbar />
-      <div className="max-w-md mx-auto mt-10 bg-gray-900 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">Registro de Usuario</h2>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-96">
+          <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Registro de Usuario</h2>
 
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre"
-          value={formData.nombre}
-          onChange={handleChange}
-          className="w-full p-3 mb-4 bg-gray-800 rounded border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+          <input
+            type="text"
+            name="nombre"
+            placeholder="Nombre"
+            value={formData.nombre}
+            onChange={handleChange}
+            className="w-full mb-3 p-2 border border-gray-300 rounded"
+            required
+          />
 
-        <input
-          type="email"
-          name="correo"
-          placeholder="Correo"
-          value={formData.correo}
-          onChange={handleChange}
-          className="w-full p-3 mb-4 bg-gray-800 rounded border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+          <input
+            type="email"
+            name="correo"
+            placeholder="Correo electrónico"
+            value={formData.correo}
+            onChange={handleChange}
+            className="w-full mb-3 p-2 border border-gray-300 rounded"
+            required
+          />
 
-        <input
-          type="password"
-          name="contraseña"
-          placeholder="Contraseña"
-          value={formData.contraseña}
-          onChange={handleChange}
-          className="w-full p-3 mb-4 bg-gray-800 rounded border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+          <input
+            type="password"
+            name="contraseña"
+            placeholder="Contraseña"
+            value={formData.contraseña}
+            onChange={handleChange}
+            className="w-full mb-3 p-2 border border-gray-300 rounded"
+            required
+          />
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded font-semibold"
-        >
-          {loading ? 'Registrando...' : 'Registrarse'}
-        </button>
+          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+          {mensaje && <p className="text-green-500 text-sm mb-3">{mensaje}</p>}
 
-        {mensaje && <p className="text-green-400 mt-4 text-center">{mensaje}</p>}
-        {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-gray-700 text-white p-2 rounded hover:bg-gray-600 mb-2"
+          >
+            {loading ? 'Registrando...' : 'Registrarse'}
+          </button>
+
+          <div className="text-center text-sm">
+            <span>¿Ya tienes una cuenta? </span>
+            <Link href="/login" className="text-blue-500 hover:underline">
+              Inicia sesión aquí
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );
