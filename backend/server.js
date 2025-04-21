@@ -98,6 +98,34 @@ app.post('/api/auth/login', (req, res) => {
 
 
 
+app.get('/api/auth/perfil', (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Token no proporcionado' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: 'Token inválido' });
+    }
+
+    const sql = 'SELECT nombre, correo FROM usuarios WHERE id = ?';
+    db.query(sql, [decoded.id], (error, results) => {
+      if (error || results.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      res.json(results[0]);
+    });
+  });
+});
+
+
+
+
 
 
 
@@ -375,6 +403,24 @@ for (const tipo in groupedData) {
 });
 
 
+app.post('/api/reset_montos', (req, res) => {
+  const sql = `
+    UPDATE cuentas
+    SET 
+      monto = 0,
+      montoSinDepreciacion = 0,
+      depreciacion = 0
+  `;
+
+  db.query(sql, (error, results) => {
+    if (error) {
+      console.error('Error al reiniciar montos:', error);
+      return res.status(500).json({ error: 'Error al reiniciar montos' });
+    }
+
+    res.status(200).json({ message: 'Montos reiniciados correctamente' });
+  });
+});
 
 
 

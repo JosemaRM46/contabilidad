@@ -73,9 +73,26 @@ const CatalogoCuentas = () => {
     return <div className="text-red-600">Error: {error}</div>;
   }
 
+  const totalActivo = cuentasAgrupadas['Activo']?.total || 0;
+  const totalPasivo = cuentasAgrupadas['Pasivo']?.total || 0;
+  const totalPatrimonio = cuentasAgrupadas['Patrimonio Neto']?.total || 0;
+  const totalPasivoPatrimonio = totalPasivo + totalPatrimonio;
+
+
+  const balanceCuadra = totalActivo === (totalPasivo + totalPatrimonio);
+
+
   return (
     <div className="min-h-screen bg-gray-100 text-white">
       <Navbar />
+      <div
+        className={`text-center font-semibold text-lg p-4 rounded-md mb-4 ${
+          balanceCuadra ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'
+        }`}
+      >
+        {balanceCuadra ? '✅ El Balance General Cuadra' : '❌ El Balance General NO Cuadra'}
+      </div>
+
       <div className="container mx-auto p-4 space-y-6">
         {Object.keys(cuentasAgrupadas).map((tipo) => (
           <div key={tipo} className="space-y-4">
@@ -162,6 +179,18 @@ const CatalogoCuentas = () => {
                     {cuentasAgrupadas[tipo].total}
                   </td>
                 </tr>
+              </tbody>
+            </table>
+
+            <table className="min-w-full bg-gray-900 text-white shadow-md rounded-md mt-4">
+              <tbody>
+              {tipo === 'Patrimonio Neto' && (
+                  <tr className="bg-gray-800 font-semibold">
+                    <td className="border px-4 py-2">Total Pasivo + Patrimonio Neto</td>
+                    <td className="border px-4 py-2" colSpan={4}></td>
+                    <td className="border px-4 py-2 text-right">{totalPasivoPatrimonio}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

@@ -109,22 +109,48 @@ const Page = () => {
     }
   };
 
-  const generateBalance = () => {
+  const generateBalanceReporte = () => {
     if (!empresa || !year) {
       alert('Por favor, ingresa el nombre de la empresa y el año.');
       return;
     }
+  
     const doc = new jsPDF({ orientation: 'landscape' });
     const pageWidth = doc.internal.pageSize.getWidth();
-    doc.text(`${empresa}`, pageWidth / 2, 15, { align: 'center' });
-    doc.text('Estado de situación financiera', pageWidth / 2, 25, { align: 'center' });
-    doc.text(`al 31 de diciembre de ${year}`, pageWidth / 2, 35, { align: 'center' });
-
-    
+    const maxY = 190; // margen inferior
+    const lineHeight = 10;
+    let yPosition = 50;
+  
+    // Posiciones fijas para columnas
+    const colCodigo = 14;       // Columna 1: Código
+    const colNombre = 45;       // Columna 2: Nombre
+    const colDeprec = 140;      // Columna 3: Depreciables
+    const colNeto   = 180;      // Columna 4: Neto
   
     doc.setFontSize(12);
-    let yPosition = 50;
-    const lineHeight = 10;
+  
+    // Encabezado principal solo en la primera página
+    const printTituloPrincipal = () => {
+      doc.text(`${empresa}`, pageWidth / 2, 15, { align: 'center' });
+      doc.text('Estado de situación financiera', pageWidth / 2, 25, { align: 'center' });
+      doc.text(`al 31 de diciembre de ${year}`, pageWidth / 2, 35, { align: 'center' });
+      yPosition = 50;
+    };
+  
+    // Encabezado de columnas (todas las páginas)
+    const printColumnHeaders = () => {
+      if (yPosition + lineHeight > maxY) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text('Código', colCodigo, yPosition);
+      doc.text('Nombre', colNombre, yPosition);
+      doc.text('Depreciables', colDeprec, yPosition);
+      doc.text('Neto', colNeto, yPosition);
+      yPosition += lineHeight;
+    };
+  
+    printTituloPrincipal();
   
     const cuentasPorTipo = cuentas.reduce((acc, cuenta) => {
       if (!acc[cuenta.tipo!]) acc[cuenta.tipo!] = {};
@@ -137,26 +163,39 @@ const Page = () => {
     let totalTipo = 0;
   
     for (const tipo in cuentasPorTipo) {
-      doc.text(`Tipo: ${tipo}`, 14, yPosition);
+      if (yPosition + lineHeight > maxY) {
+        doc.addPage();
+        yPosition = 20;
+        printColumnHeaders();
+      }
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Tipo: ${tipo}`, colCodigo, yPosition);
       yPosition += lineHeight;
+      doc.setFont('helvetica', 'normal');
   
       let totalGrupoTipo = 0;
   
       for (const grupo in cuentasPorTipo[tipo]) {
-        doc.text(`  Grupo: ${grupo}`, 20, yPosition);
+        if (yPosition + lineHeight > maxY) {
+          doc.addPage();
+          yPosition = 20;
+          printColumnHeaders();
+        }
+        doc.text(`  Grupo: ${grupo}`, colCodigo + 6, yPosition);
         yPosition += lineHeight;
   
         let totalSubgrupoGrupo = 0;
   
         for (const subgrupo in cuentasPorTipo[tipo][grupo]) {
-          doc.text(`    Subgrupo: ${subgrupo}`, 26, yPosition);
+          if (yPosition + lineHeight > maxY) {
+            doc.addPage();
+            yPosition = 20;
+            printColumnHeaders();
+          }
+          doc.text(`    Subgrupo: ${subgrupo}`, colCodigo + 12, yPosition);
           yPosition += lineHeight;
   
-          doc.text('Código', 32, yPosition);
-          doc.text('Nombre', 60, yPosition);
-          doc.text('Depreciables', 140, yPosition);
-          doc.text('Neto', 180, yPosition);
-          yPosition += lineHeight;
+          printColumnHeaders();
   
           let totalSubgrupo = 0;
   
@@ -166,48 +205,73 @@ const Page = () => {
             const montoSinDepreciacion = Number(cuenta.montoSinDepreciacion) || 0;
   
             let montoDepreciacionMostrar = '';
-            if ((montoSinDepreciacion > 0 || depreciacion > 0) && (cuenta.parent_id === 122 || cuenta.codigo === '1131' || cuenta.codigo === '11311')) {
-              if (montoSinDepreciacion > 0) {
-                montoDepreciacionMostrar = montoSinDepreciacion.toFixed(2);
-              } else if (depreciacion > 0) {
-                montoDepreciacionMostrar = depreciacion.toFixed(2);
-              }
-            }            
+            if ((montoSinDepreciacion > 0 || depreciacion > 0) &&
+              (cuenta.parent_id === 122 || cuenta.codigo === '1131' || cuenta.codigo === '11311')) {
+              montoDepreciacionMostrar =
+                montoSinDepreciacion > 0
+                  ? montoSinDepreciacion.toFixed(2)
+                  : depreciacion.toFixed(2);
+            }
   
-            if (montoSinDepreciacion > 0 || depreciacion > 0 || cuenta.parent_id === 122 || cuenta.codigo === '1131' || cuenta.codigo === '11311') {
-              if (yPosition + lineHeight > 190) {
+            const debeMostrarse = monto !== 0 || montoDepreciacionMostrar;
+  
+            if (debeMostrarse) {
+              if (yPosition + lineHeight > maxY) {
                 doc.addPage();
                 yPosition = 20;
+                printColumnHeaders();
               }
   
-              doc.text(cuenta.codigo, 32, yPosition);
-              doc.text(cuenta.nombre, 60, yPosition);
-              if ((montoSinDepreciacion > 0 || depreciacion > 0) && (cuenta.parent_id === 122 || cuenta.codigo === '1131' || cuenta.codigo === '11311')) {
-                doc.text(montoDepreciacionMostrar, 140, yPosition);
+              doc.text(cuenta.codigo, colCodigo, yPosition);
+              doc.text(cuenta.nombre, colNombre, yPosition);
+              if (montoDepreciacionMostrar && montoDepreciacionMostrar !== '0.00') {
+                doc.text(montoDepreciacionMostrar, colDeprec, yPosition);
               }
-              doc.text(monto !== 0 ? monto.toFixed(2) : '', 180, yPosition);
+              if (monto !== 0) {
+                doc.text(monto.toFixed(2), colNeto, yPosition);
+              }
   
               totalSubgrupo += monto;
               yPosition += lineHeight;
             }
           });
   
-          doc.text(`      Total Subgrupo: ${subgrupo}`, 32, yPosition);
-          doc.text(`Total: ${totalSubgrupo.toFixed(2)}`, 210, yPosition);
+          if (yPosition + lineHeight > maxY) {
+            doc.addPage();
+            yPosition = 20;
+            printColumnHeaders();
+          }
+  
+          doc.text(`      Total Subgrupo: ${subgrupo}`, colCodigo, yPosition);
+          doc.text(`Total: ${totalSubgrupo.toFixed(2)}`, colNeto + 30, yPosition);
           yPosition += lineHeight;
   
           totalSubgrupoGrupo += totalSubgrupo;
         }
   
-        doc.text(`    Total Grupo: ${grupo}`, 20, yPosition);
-        doc.text(`Total: ${totalSubgrupoGrupo.toFixed(2)}`, 250, yPosition);
+        if (yPosition + lineHeight > maxY) {
+          doc.addPage();
+          yPosition = 20;
+          printColumnHeaders();
+        }
+  
+        doc.text(`    Total Grupo: ${grupo}`, colCodigo + 6, yPosition);
+        doc.text(`Total: ${totalSubgrupoGrupo.toFixed(2)}`, colNeto + 70, yPosition);
         yPosition += lineHeight;
   
         totalGrupoTipo += totalSubgrupoGrupo;
       }
   
-      doc.text(`  Total Tipo: ${tipo}`, 14, yPosition);
-      doc.text(`Total: ${totalGrupoTipo.toFixed(2)}`, 250, yPosition);
+      if (yPosition + lineHeight > maxY) {
+        doc.addPage();
+        yPosition = 20;
+        printColumnHeaders();
+      }
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text(`  Total Tipo: ${tipo}`, colCodigo, yPosition);
+      doc.text(`Total: ${totalGrupoTipo.toFixed(2)}`, colNeto + 70, yPosition);
+      doc.setFont('helvetica', 'normal');
       yPosition += lineHeight;
   
       totalTipo += totalGrupoTipo;
@@ -215,6 +279,229 @@ const Page = () => {
   
     doc.save('balance_cuentas.pdf');
   };
+  
+  
+  
+  
+
+  const generateBalanceCuenta = () => {
+    if (!empresa || !year) {
+      alert('Por favor, ingresa el nombre de la empresa y el año.');
+      return;
+    }
+  
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+  
+    // Posiciones para columnas
+    const columnLeftX = 6;                   // Columna izquierda: Activo
+    const columnRightX = pageWidth / 2 + 2;  // Columna derecha: Pasivo + Patrimonio
+    const lineHeight = 8;
+  
+    // Encabezado
+    doc.setFontSize(12);
+    doc.text(`${empresa}`, pageWidth / 2, 15, { align: 'center' });
+    doc.text('Estado de situación financiera', pageWidth / 2, 25, { align: 'center' });
+    doc.text(`al 31 de diciembre de ${year}`, pageWidth / 2, 35, { align: 'center' });
+  
+    doc.setFontSize(10);
+  
+    const cuentasPorTipo = cuentas.reduce((acc, cuenta) => {
+      let tipo = cuenta.tipo!;
+      if (tipo === 'Patrimonio Neto') tipo = 'Patrimonio';
+  
+      if (!acc[tipo]) acc[tipo] = {};
+      if (!acc[tipo][cuenta.grupo!]) acc[tipo][cuenta.grupo!] = {};
+      if (!acc[tipo][cuenta.grupo!][cuenta.subgrupo!]) acc[tipo][cuenta.grupo!][cuenta.subgrupo!] = [];
+      acc[tipo][cuenta.grupo!][cuenta.subgrupo!].push(cuenta);
+      return acc;
+    }, {} as Record<string, Record<string, Record<string, Cuenta[]>>>);
+  
+    const buildLines = (tipo: string) => {
+      const lines: (
+        string | {
+          codigo: string;
+          nombre: string;
+          depreciable: string;
+          neto: string;
+        }
+      )[] = [];
+      let totalTipo = 0;
+      if (!cuentasPorTipo[tipo]) return { lines, total: totalTipo };
+      lines.push(`Tipo: ${tipo}`);
+      for (const grupo in cuentasPorTipo[tipo]) {
+        lines.push(`  Grupo: ${grupo}`);
+        for (const subgrupo in cuentasPorTipo[tipo][grupo]) {
+          lines.push(`    Subgrupo: ${subgrupo}`);
+          lines.push(`      Código   Nombre                                                            Depreciación                Neto`);
+  
+          let totalSubgrupo = 0;
+          cuentasPorTipo[tipo][grupo][subgrupo].forEach((cuenta) => {
+            const monto = Number(cuenta.monto) || 0;
+            const depreciacion = Number(cuenta.depreciacion) || 0;
+            const montoSinDepreciacion = Number(cuenta.montoSinDepreciacion) || 0;
+  
+            // Determina si se muestra algo en "Depreciables"
+            let mostrarDepreciacion = '';
+            if ((montoSinDepreciacion > 0 || depreciacion > 0) &&
+              (cuenta.parent_id === 122 || cuenta.codigo === '1131' || cuenta.codigo === '11311')) {
+              mostrarDepreciacion = montoSinDepreciacion > 0
+                ? montoSinDepreciacion.toFixed(2)
+                : depreciacion.toFixed(2);
+            }
+  
+            // Condición para mostrar esta cuenta
+            if (monto !== 0 || mostrarDepreciacion) {
+              lines.push({
+                codigo: cuenta.codigo,
+                nombre: cuenta.nombre,
+                depreciable: mostrarDepreciacion !== '0.00' ? mostrarDepreciacion : '', // 👈 ocultar si es cero
+                neto: monto !== 0 ? monto.toFixed(2) : ''                                // 👈 ocultar si es cero
+              });
+              totalSubgrupo += monto;
+            }
+          });
+  
+          lines.push(`      Total Subgrupo: ${subgrupo}          Total: ${totalSubgrupo.toFixed(2)}`);
+          totalTipo += totalSubgrupo;
+        }
+      }
+  
+      lines.push(`\n  Total ${tipo}:                     ${totalTipo.toFixed(2)}`);
+      return { lines, total: totalTipo };
+    };
+  
+    const activo = buildLines('Activo');
+    const pasivo = buildLines('Pasivo');
+    const patrimonio = buildLines('Patrimonio');
+    const pasivoPatrimonio = {
+      lines: [...pasivo.lines, ...patrimonio.lines, `\n  Total Pasivo + Patrimonio: ${(pasivo.total + patrimonio.total).toFixed(2)}`],
+      total: pasivo.total + patrimonio.total
+    };
+  
+    const maxLines = Math.max(activo.lines.length, pasivoPatrimonio.lines.length);
+    let y = 50;
+  
+    for (let i = 0; i < maxLines; i++) {
+      const leftLine = activo.lines[i];
+      const rightLine = pasivoPatrimonio.lines[i];
+  
+      // ----- COLUMNA IZQUIERDA -----
+      if (typeof leftLine === 'string') {
+        if (leftLine.startsWith('Tipo:')) {
+          doc.setFont('helvetica', 'bold');
+          doc.text(leftLine, pageWidth / 4, y, { align: 'center' }); // Centrado en columna izquierda
+          doc.setFont('helvetica', 'normal');
+        } else {
+          doc.text(leftLine, columnLeftX, y);
+        }
+      }
+       else if (typeof leftLine === 'object') {
+        // Posiciones por columna:
+        // columnLeftX: código (inicio)
+        // columnLeftX + 25: nombre
+        // columnLeftX + 90: depreciable
+        // columnLeftX + 125: neto
+        doc.text(leftLine.codigo, columnLeftX + 7, y);
+        doc.text(leftLine.nombre, columnLeftX + 20, y);
+        doc.text(leftLine.depreciable, columnLeftX + 95, y);
+        doc.text(leftLine.neto, columnLeftX + 125, y);
+      }
+  
+      // ----- COLUMNA DERECHA -----
+      if (typeof rightLine === 'string') {
+        if (rightLine.startsWith('Tipo:')) {
+          doc.setFont('helvetica', 'bold');
+          doc.text(rightLine, (pageWidth * 3) / 4, y, { align: 'center' }); // Centrado en columna derecha
+          doc.setFont('helvetica', 'normal');
+        } else {
+          doc.text(rightLine, columnRightX, y);
+        }
+      }
+       else if (typeof rightLine === 'object') {
+        // Posiciones por columna:
+        // columnRightX: código (inicio)
+        // columnRightX + 25: nombre
+        // columnRightX + 90: depreciable
+        // columnRightX + 125: neto
+        doc.text(rightLine.codigo, columnRightX + 7, y);
+        doc.text(rightLine.nombre, columnRightX + 20, y);
+        doc.text(rightLine.depreciable, columnRightX + 90, y);
+        doc.text(rightLine.neto, columnRightX + 125, y);
+      }
+  
+      y += lineHeight;
+  
+      if (y > 190 && i < maxLines - 1) {
+        doc.addPage();
+        y = 20;
+      }
+    }
+  
+    doc.save('balance_cuentas_columnas.pdf');
+  };  
+
+
+
+  const exportToCSV = () => {
+    if (cuentas.length === 0) {
+      alert('No hay cuentas para exportar.');
+      return;
+    }
+  
+    const headers = ['Código', 'Nombre', 'Monto', 'Depreciación', 'Monto sin Depreciación', 'Tipo', 'Grupo', 'Subgrupo'];
+    const rows = cuentas.map(cuenta => [
+      cuenta.codigo,
+      cuenta.nombre,
+      cuenta.monto ?? '',
+      cuenta.depreciacion ?? '',
+      cuenta.montoSinDepreciacion ?? '',
+      cuenta.tipo ?? '',
+      cuenta.grupo ?? '',
+      cuenta.subgrupo ?? ''
+    ]);
+  
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+  
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `cuentas_${empresa}_${year}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleResetMontos = async () => {
+    const confirmar = window.confirm("¿Estás seguro de que deseas hacer un nuevo balance general? Esta acción reiniciará todos los montos.");
+    if (!confirmar) return;
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/reset_montos", {
+        method: "POST",
+      });
+  
+      if (response.ok) {
+        alert("Balance general reiniciado exitosamente");
+        getCuentasConValores(); // Recargar las cuentas actualizadas
+      } else {
+        const data = await response.json();
+        alert("Error: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error al reiniciar montos:", error);
+      alert("Hubo un error al intentar hacer un nuevo balance");
+    }
+  };
+  
+  
+  
+    
+  
   
   
 
@@ -251,12 +538,28 @@ const Page = () => {
               placeholder="Año"
               className="w-full p-2 border border-gray-400 rounded mb-2"
             />
-            <button
-              onClick={generateBalance}
-              className="w-full p-2 bg-gray-700 text-white rounded hover:bg-gray-600"
-            >
-              Generar PDF
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={generateBalanceReporte}
+                className="w-full p-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+              >
+                Generar balance general en forma de reporte
+              </button>
+              <button
+                onClick={() => generateBalanceCuenta()} // Esta función la vamos a definir abajo
+                className="w-full p-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+              >
+                Generar balance general en forma de cuenta
+              </button>
+              <button
+                onClick={exportToCSV}
+                className="w-full bg-gray-700 text-white p-2 rounded hover:bg-gray-600"
+              >
+                Exportar a CSV
+              </button>
+
+            </div>
+
           </div>
         )}
 
@@ -295,6 +598,13 @@ const Page = () => {
             </button>
           </div>
         )}
+        <button
+          onClick={handleResetMontos}
+          className="bg-gray-900 text-white px-4 py-2 mt-6 rounded hover:bg-red-500 transition"
+        >
+          Hacer un nuevo balance
+        </button>
+
       </div>
     </div>
   );

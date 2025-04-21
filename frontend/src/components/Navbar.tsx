@@ -9,7 +9,8 @@ const Navbar = () => {
   const links = [
     { name: 'Inicio', href: '/' },
     { name: 'Catálogo', href: '/catalogo' },
-    { name: 'Vista Previa', href: '/vistaPrevia' }
+    { name: 'Vista Previa', href: '/vistaPrevia' },
+    { name: 'Perfil', href: '/perfil' },
   ];
   
   return (
