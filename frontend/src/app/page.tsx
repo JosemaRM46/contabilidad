@@ -67,8 +67,8 @@ const Page = () => {
   
     if (!codigoValido) {
       const mensaje = 'Debe ingresar un código de cuenta válido';
-      alert(mensaje); // ✅ Muestra una alerta
-      setError(mensaje); // ✅ Guarda mensaje para mostrarlo en la interfaz si usas un <p>{error}</p>
+      alert(mensaje);
+      setError(mensaje);
       setCuentaSeleccionada(null);
       return;
     }
@@ -526,7 +526,7 @@ const Page = () => {
   
       if (response.ok) {
         alert("Balance general reiniciado exitosamente");
-        getCuentasConValores(); // Recargar las cuentas actualizadas
+        getCuentasConValores();
       } else {
         const data = await response.json();
         alert("Error: " + data.message);
@@ -585,7 +585,7 @@ const Page = () => {
                 Generar balance general en forma de reporte
               </button>
               <button
-                onClick={() => generateBalanceCuenta()} // Esta función la vamos a definir abajo
+                onClick={() => generateBalanceCuenta()}
                 className="w-full p-2 bg-gray-700 text-white rounded hover:bg-gray-600"
               >
                 Generar balance general en forma de cuenta

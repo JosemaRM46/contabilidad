@@ -21,7 +21,6 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        // Cambiar "email" por "correo"
         body: JSON.stringify({ correo: email, contraseña: password }),
       });
   
@@ -33,7 +32,7 @@ export default function LoginPage() {
       }
   
       localStorage.setItem('token', data.token); // Guarda el token
-      router.push('/'); // Redirige a la página principal
+      router.push('/');
     } catch (err) {
       setError('Hubo un error al iniciar sesión');
     }

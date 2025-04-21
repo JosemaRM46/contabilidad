@@ -76,9 +76,9 @@ const CatalogoCuentas = () => {
             ) : (
               <div className="flex items-start justify-between">
                 {renderTable('Activo', cuentas.Activo)}
-                <div className="text-4xl text-gray-700 mx-4">=</div> {/* Símbolo "=" entre Activo y Pasivo */}
+                <div className="text-4xl text-gray-700 mx-4">=</div>
                 {renderTable('Pasivo', cuentas.Pasivo)}
-                <div className="text-4xl text-gray-700 mx-4">+</div> {/* Símbolo "+" entre Pasivo y Patrimonio Neto */}
+                <div className="text-4xl text-gray-700 mx-4">+</div>
                 {renderTable('Patrimonio Neto', cuentas.PatrimonioNeto)}
               </div>
             )}

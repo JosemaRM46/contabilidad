@@ -22,13 +22,11 @@ app.listen(port, () => {
 });
 
 
-// Registro de usuario
 app.post('/api/auth/register', (req, res) => {
   const { nombre, correo, contraseña } = req.body;
 
   bcrypt.hash(contraseña, 10, (err, hashedPassword) => {
     if (err) {
-      console.error('Error al hashear contraseña:', err);
       return res.status(500).json({ error: 'Error al procesar la contraseña' });
     }
 
@@ -36,7 +34,6 @@ app.post('/api/auth/register', (req, res) => {
 
     db.query(sql, [nombre, correo, hashedPassword], (error, results) => {
       if (error) {
-        console.error('Error al registrar usuario:', error);
         return res.status(500).json({ error: 'Error al registrar usuario' });
       }
 
@@ -47,26 +44,17 @@ app.post('/api/auth/register', (req, res) => {
 
 app.post('/api/auth/login', (req, res) => {
   const { correo, contraseña } = req.body;
-
-  console.log('Datos de inicio de sesión:', { correo, contraseña });
-
   const sql = 'SELECT * FROM usuarios WHERE correo = ?';
   db.query(sql, [correo], (err, results) => {
     if (err) {
-      console.error('Error en la base de datos:', err);
       return res.status(500).json({ error: 'Error al iniciar sesión' });
     }
 
     if (results.length === 0) {
-      console.log(`Usuario con correo ${correo} no encontrado`);
       return res.status(401).json({ error: 'Correo no registrado' });
     }
 
     const usuario = results[0];
-
-    // Verifica si la contraseña enviada coincide con la almacenada
-    console.log('Contraseña enviada:', contraseña);
-    console.log('Contraseña almacenada (hash):', usuario.contraseña);
 
     bcrypt.compare(contraseña, usuario.contraseña, (err, esValida) => {
       if (err || !esValida) {

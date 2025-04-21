@@ -57,7 +57,7 @@ const RegistroPage = () => {
       if (response.ok) {
         setMensaje('Usuario registrado correctamente');
         setFormData({ nombre: '', correo: '', contraseña: '' });
-        router.push('/login'); // Redirige a login después de registro exitoso
+        router.push('/login');
       } else {
         setError(data.error || 'Error al registrar usuario');
       }
