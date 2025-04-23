@@ -96,24 +96,24 @@ const CatalogoCuentas = () => {
       <div className="container mx-auto p-4 space-y-6">
         {Object.keys(cuentasAgrupadas).map((tipo) => (
           <div key={tipo} className="space-y-4">
-            <h2 className="text-2xl font-bold text-black">{tipo}</h2>
+            <h2 className="text-2xl font-bold text-black text-center underline">{tipo}</h2>
 
             {Object.keys(cuentasAgrupadas[tipo].grupos).map((grupo) => (
               <div key={grupo} className="space-y-2">
-                <h3 className="text-xl font-semibold text-black">{grupo}</h3>
+                <h3 className="text-xl font-bold text-black">{grupo}</h3>
 
                 {Object.keys(cuentasAgrupadas[tipo].grupos[grupo].subgrupos).map((subgrupo) => (
                   <div key={subgrupo}>
-                    <h4 className="text-lg font-medium text-black">{subgrupo}</h4>
+                    <h4 className="text-lg font-medium mb-3 text-black">{subgrupo}</h4>
                     <table className="min-w-full bg-gray-800 text-white shadow-md rounded-md">
                       <thead>
                         <tr className="bg-gray-900">
-                          <th className="px-4 py-2">Código</th>
-                          <th className="px-4 py-2">Nombre</th>
-                          <th className="px-4 py-2">Monto Sin Depreciación</th>
-                          <th className="px-4 py-2">Monto</th>
-                          <th className="px-4 py-2">Total Grupos</th>
-                          <th className="px-4 py-2">Total Tipo</th>
+                          <th className="w-1-12 border px-4 py-2">Código</th>
+                          <th className="w-4-12 border px-4 py-2">Nombre</th>
+                          <th className="w-1-12 border px-4 py-2">Monto Sin Depreciación</th>
+                          <th className="w-1-12 border px-4 py-2">Monto</th>
+                          <th className="w-1-12 border px-4 py-2">Total Grupos</th>
+                          <th className="w-1-12 border px-4 py-2">Total Tipo</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -122,60 +122,67 @@ const CatalogoCuentas = () => {
                             key={index}
                             className={cuenta.isTotal ? 'bg-gray-600 font-bold text-white' : 'bg-gray-700'}
                           >
-                            <td className="border px-4 py-2">{cuenta.codigo}</td>
+                            <td className="border text-center px-4 py-2">{cuenta.codigo}</td>
                             <td className="border px-4 py-2">{cuenta.nombre}</td>
-                            <td className="border px-4 py-2">
+                            <td className="border text-center px-4 py-2">
                               {cuenta.montoSinDepreciacion !== null ? cuenta.montoSinDepreciacion : '-'}
                             </td>
-                            <td className="border px-4 py-2">
+                            <td className="border text-center px-4 py-2">
                               {cuenta.isTotal ? cuenta.total : cuenta.monto}
                             </td>
-                            <td className="border px-4 py-2"></td>
-                            <td className="border px-4 py-2"></td>
+                            <td className="border text-center px-4 py-2"></td>
+                            <td className="border text-center px-4 py-2"></td>
                           </tr>
                         ))}
 
                         <tr className="bg-gray-900 font-bold">
-                          <td className="border px-4 py-2">Total {subgrupo}</td>
+                          <td className="border px-4 py-2" colSpan={2}>Total {subgrupo}</td>
                           <td className="border px-4 py-2"></td>
                           <td className="border px-4 py-2"></td>
-                          <td className="border px-4 py-2"></td>
-                          <td className="border px-4 py-2 text-right">
+                          <td className="border px-4 py-2 text-center">
                             {cuentasAgrupadas[tipo].grupos[grupo].subgrupos[subgrupo].total}
                           </td>
                           <td className="border px-4 py-2"></td>
                         </tr>
+                        <tr className="bg-gray-900 font-bold">
+                    <td className="w-6-12 border px-4 py-2" colSpan={2}>Total del Grupo {grupo}</td>
+                    <td className="w-1-12 border px-4 py-2"></td>
+                    <td className="w-1-12 border px-4 py-2"></td>
+                    <td className="w-1-12 border px-4 py-2"></td>
+                    <td className="w-1-12 border px-4 py-2 text-center">
+                      {cuentasAgrupadas[tipo].grupos[grupo].total}
+                    </td>
+                  </tr>
                       </tbody>
                     </table>
                   </div>
                 ))}
 
-                <table className="min-w-full bg-gray-800 text-white shadow-md rounded-md mt-2">
+                {/* <table className="min-w-full bg-gray-800 text-white shadow-md rounded-md mt-2">
                   <tbody>
-                    <tr className="bg-gray-700">
-                      <td className="border px-4 py-2">Total del Grupo {grupo}</td>
-                      <td className="border px-4 py-2"></td>
-                      <td className="border px-4 py-2"></td>
-                      <td className="border px-4 py-2"></td>
-                      <td className="border px-4 py-2"></td>
-                      <td className="border px-4 py-2 text-right">
-                        {cuentasAgrupadas[tipo].grupos[grupo].total}
-                      </td>
-                    </tr>
+                  <tr className="bg-gray-700">
+                    <td className="w-6-12 border px-4 py-2" colSpan={2}>Total del Grupo {grupo}</td>
+                    <td className="w-1-12 border px-4 py-2"></td>
+                    <td className="w-1-12 border px-4 py-2"></td>
+                    <td className="w-1-12 border px-4 py-2"></td>
+                    <td className="w-1-12 border px-4 py-2 text-right">
+                      {cuentasAgrupadas[tipo].grupos[grupo].total}
+                    </td>
+                  </tr>
                   </tbody>
-                </table>
+                </table> */}
               </div>
             ))}
 
             <table className="min-w-full bg-gray-900 text-white shadow-md rounded-md mt-4">
               <tbody>
-                <tr className="bg-gray-800">
-                  <td className="border px-4 py-2">Total del Tipo {tipo}</td>
-                  <td className="border px-4 py-2"></td>
-                  <td className="border px-4 py-2"></td>
-                  <td className="border px-4 py-2"></td>
-                  <td className="border px-4 py-2"></td>
-                  <td className="border px-4 py-2 text-right">
+                <tr className="bg-gray-900 font-bold">
+                  <td className="w-5-12 px-4 py-2">Total del Tipo {tipo}</td>
+                  <td className="w-1-12  px-4 py-2"></td>
+                  <td className="w-1-12 px-4 py-2"></td>
+                  <td className="w-1-12 px-4 py-2"></td>
+                  <td className="w-1-12 px-4 py-2"></td>
+                  <td className="w-1-12 px-11 py-2 text-center">
                     {cuentasAgrupadas[tipo].total}
                   </td>
                 </tr>
@@ -185,10 +192,13 @@ const CatalogoCuentas = () => {
             <table className="min-w-full bg-gray-900 text-white shadow-md rounded-md mt-4">
               <tbody>
               {tipo === 'Patrimonio Neto' && (
-                  <tr className="bg-gray-800 font-semibold">
-                    <td className="border px-4 py-2">Total Pasivo + Patrimonio Neto</td>
-                    <td className="border px-4 py-2" colSpan={4}></td>
-                    <td className="border px-4 py-2 text-right">{totalPasivoPatrimonio}</td>
+                  <tr className="bg-gray-900 font-bold">
+                    <td className="w-5-12 px-4 py-2">Total Pasivo + Patrimonio Neto</td>
+                    <td className="w-1-12 px-4 py-2"></td>
+                    <td className="w-1-12 px-4 py-2"></td>
+                    <td className="w-1-12 px-4 py-2"></td>
+                    <td className="w-1-12 px-4 py-2"></td>
+                    <td className="w-1-12 px-10 py-2 text-center">{totalPasivoPatrimonio}</td>
                   </tr>
                 )}
               </tbody>

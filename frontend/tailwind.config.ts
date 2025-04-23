@@ -12,6 +12,11 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      width: {
+        '1-12': '8.333333%',   // Para columna Código
+        '2-12': '16.666667%',  // Para Monto, Total Grupo, Total Tipo
+        '4-12': '33.333333%',  // Para columna Nombre
+      },
     },
   },
   plugins: [],

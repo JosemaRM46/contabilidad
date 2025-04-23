@@ -604,7 +604,7 @@ const Page = () => {
 
         <div className="my-4">
           <input
-            type="text"
+            type="number"
             value={codigo}
             onChange={(e) => setCodigo(e.target.value)}
             placeholder="Ingrese código de cuenta"
