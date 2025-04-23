@@ -376,8 +376,8 @@ const Page = () => {
             if ((montoSinDepreciacion > 0 || depreciacion > 0) &&
               (cuenta.parent_id === 122 || cuenta.codigo === '1131' || cuenta.codigo === '11311')) {
               mostrarDepreciacion = montoSinDepreciacion > 0
-                ? montoSinDepreciacion.toFixed(2)
-                : depreciacion.toFixed(2);
+                ? `L ${montoSinDepreciacion.toFixed(2)}`
+                : `L ${depreciacion.toFixed(2)}`;
             }
   
             if (monto !== 0 || mostrarDepreciacion) {
@@ -385,7 +385,7 @@ const Page = () => {
                 codigo: cuenta.codigo,
                 nombre: cuenta.nombre,
                 depreciable: mostrarDepreciacion !== '0.00' ? mostrarDepreciacion : '',
-                neto: monto !== 0 ? monto.toFixed(2) : ''
+                neto: monto !== 0 ? `L ${monto.toFixed(2)}` : ''
               });
               totalSubgrupo += monto;
             }
@@ -396,7 +396,7 @@ const Page = () => {
             codigo: '',
             nombre: `Total Subgrupo: ${subgrupo}`,
             depreciable: '',
-            neto: totalSubgrupo.toFixed(2)
+            neto: `L ${totalSubgrupo.toFixed(2)}`
           });
   
           totalTipo += totalSubgrupo;
@@ -408,7 +408,7 @@ const Page = () => {
         codigo: '',
         nombre: `Total ${tipo}`,
         depreciable: '',
-        neto: totalTipo.toFixed(2)
+        neto: `L ${totalTipo.toFixed(2)}`
       });
       
   
@@ -423,7 +423,7 @@ const Page = () => {
       codigo: '',
       nombre: 'Total Pasivo + Patrimonio Neto',
       depreciable: '',
-      neto: (pasivo.total + patrimonio.total).toFixed(2)
+      neto: `L ${(pasivo.total + patrimonio.total).toFixed(2)}`
     });
   
     const pasivoPatrimonio = {
@@ -486,18 +486,7 @@ const Page = () => {
         doc.addPage();
         y = 20;
       }
-    }
-  
-    // // Imprimir totales finales globales
-    // y += 10;
-    // doc.setFont('helvetica', 'bold');
-    // doc.text('Total Activo:', columnLeftX + 20, y);
-    // doc.text(activo.total.toFixed(2), columnLeftX + 125, y);
-  
-    // doc.text('Total Pasivo + Patrimonio:', columnRightX + 20, y);
-    // doc.text(pasivoPatrimonio.total.toFixed(2), columnRightX + 125, y);
-    // doc.setFont('helvetica', 'normal');
-  
+    }  
     doc.save('balance_cuentas_columnas.pdf');
   };
   
