@@ -171,6 +171,8 @@ const Page = () => {
     }, {} as Record<string, Record<string, Record<string, Cuenta[]>>>);
   
     let totalTipo = 0;
+    let totalPasivo = 0;
+    let totalPatrimonioNeto = 0;
   
     for (const tipo in cuentasPorTipo) {
       if (yPosition + lineHeight > maxY) {
@@ -285,7 +287,27 @@ const Page = () => {
       yPosition += lineHeight;
   
       totalTipo += totalGrupoTipo;
+      if (tipo.toLowerCase() === 'pasivo') {
+        totalPasivo += totalGrupoTipo;
+      }
+      if (tipo.toLowerCase() === 'patrimonio neto') {
+        totalPatrimonioNeto += totalGrupoTipo;
+      }
+      
     }
+
+    if (yPosition + 2 * lineHeight > maxY) {
+      doc.addPage();
+      yPosition = 20;
+      printColumnHeaders();
+    }
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Total Pasivo + Patrimonio', colCodigo, yPosition);
+    const sumaPasivoPatrimonio = totalPasivo + totalPatrimonioNeto;
+    doc.text(`Total: ${sumaPasivoPatrimonio.toFixed(2)}`, colNeto + 70, yPosition);
+    doc.setFont('helvetica', 'normal');
+    
   
     doc.save('balance_cuentas.pdf');
   };
