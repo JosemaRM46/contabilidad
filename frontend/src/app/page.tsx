@@ -221,8 +221,8 @@ const Page = () => {
               (cuenta.parent_id === 122 || cuenta.codigo === '1131' || cuenta.codigo === '11311')) {
               montoDepreciacionMostrar =
                 montoSinDepreciacion > 0
-                  ? montoSinDepreciacion.toFixed(2)
-                  : depreciacion.toFixed(2);
+                  ? `L ${montoSinDepreciacion.toFixed(2)}`
+                  : `L ${depreciacion.toFixed(2)}`;
             }
   
             const debeMostrarse = monto !== 0 || montoDepreciacionMostrar;
@@ -240,7 +240,7 @@ const Page = () => {
                 doc.text(montoDepreciacionMostrar, colDeprec, yPosition);
               }
               if (monto !== 0) {
-                doc.text(monto.toFixed(2), colNeto, yPosition);
+                doc.text(`L ${monto.toFixed(2)}`, colNeto, yPosition);
               }
   
               totalSubgrupo += monto;
@@ -255,7 +255,7 @@ const Page = () => {
           }
   
           doc.text(`      Total Subgrupo: ${subgrupo}`, colCodigo, yPosition);
-          doc.text(`Total: ${totalSubgrupo.toFixed(2)}`, colNeto + 30, yPosition);
+          doc.text(`L ${totalSubgrupo.toFixed(2)}`, colNeto + 35, yPosition);
           yPosition += lineHeight;
   
           totalSubgrupoGrupo += totalSubgrupo;
@@ -267,8 +267,8 @@ const Page = () => {
           printColumnHeaders();
         }
   
-        doc.text(`    Total Grupo: ${grupo}`, colCodigo + 6, yPosition);
-        doc.text(`Total: ${totalSubgrupoGrupo.toFixed(2)}`, colNeto + 70, yPosition);
+        doc.text(`    L ${grupo}`, colCodigo + 6, yPosition);
+        doc.text(`L ${totalSubgrupoGrupo.toFixed(2)}`, colNeto + 75, yPosition);
         yPosition += lineHeight;
   
         totalGrupoTipo += totalSubgrupoGrupo;
@@ -282,7 +282,7 @@ const Page = () => {
       
       doc.setFont('helvetica', 'bold');
       doc.text(`  Total Tipo: ${tipo}`, colCodigo, yPosition);
-      doc.text(`Total: ${totalGrupoTipo.toFixed(2)}`, colNeto + 70, yPosition);
+      doc.text(`L ${totalGrupoTipo.toFixed(2)}`, colNeto + 75, yPosition);
       doc.setFont('helvetica', 'normal');
       yPosition += lineHeight;
   
@@ -305,7 +305,7 @@ const Page = () => {
     doc.setFont('helvetica', 'bold');
     doc.text('Total Pasivo + Patrimonio', colCodigo, yPosition);
     const sumaPasivoPatrimonio = totalPasivo + totalPatrimonioNeto;
-    doc.text(`Total: ${sumaPasivoPatrimonio.toFixed(2)}`, colNeto + 70, yPosition);
+    doc.text(`L ${sumaPasivoPatrimonio.toFixed(2)}`, colNeto + 75, yPosition);
     doc.setFont('helvetica', 'normal');
     
   
@@ -421,7 +421,7 @@ const Page = () => {
 
     patrimonio.lines.push({
       codigo: '',
-      nombre: 'Total Pasivo + Patrimonio',
+      nombre: 'Total Pasivo + Patrimonio Neto',
       depreciable: '',
       neto: (pasivo.total + patrimonio.total).toFixed(2)
     });

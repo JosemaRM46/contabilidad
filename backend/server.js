@@ -178,14 +178,25 @@ app.get('/api/auth/perfil', (req, res) => {
                 console.log('✅ Monto actualizado correctamente en', fieldToUpdate);
   
                 db.query('CALL actualizar_monto()', (err) => {
-                    if (err) {
-                        console.error('❌ Error al ejecutar el procedimiento:', err);
-                        return res.status(500).send('Error al actualizar montos generales');
-                    }
-  
-                    console.log('✅ Montos generales actualizados.');
-                    res.status(200).send('Monto actualizado y montos generales recalculados correctamente.');
-                });
+                  if (err) {
+                      console.error('❌ Error al ejecutar actualizar_monto():', err);
+                      return res.status(500).send('Error al actualizar montos generales');
+                  }
+              
+                  console.log('✅ Montos generales actualizados desde actualizar_monto().');
+              
+                  // Ahora llamamos al segundo procedimiento
+                  db.query('CALL actualizar_depreciacion()', (err2) => {
+                      if (err2) {
+                          console.error('❌ Error al ejecutar actualizar_depreciacion():', err2);
+                          return res.status(500).send('Error al actualizar la depreciación');
+                      }
+              
+                      console.log('✅ Depreciación actualizada desde actualizar_depreciacion().');
+                      res.status(200).send('Montos y depreciación actualizados correctamente.');
+                  });
+              });
+              
             }
         );
     });
