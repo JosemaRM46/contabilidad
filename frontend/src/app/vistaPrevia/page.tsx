@@ -125,10 +125,10 @@ const CatalogoCuentas = () => {
                             <td className="border text-center px-4 py-2">{cuenta.codigo}</td>
                             <td className="border px-4 py-2">{cuenta.nombre}</td>
                             <td className="border text-center px-4 py-2">
-                              {cuenta.montoSinDepreciacion !== null ? cuenta.montoSinDepreciacion : '-'}
+                              {cuenta.montoSinDepreciacion !== null ? `L ${cuenta.montoSinDepreciacion}` : ''}
                             </td>
                             <td className="border text-center px-4 py-2">
-                              {cuenta.isTotal ? cuenta.total : cuenta.monto}
+                            {cuenta.isTotal ? cuenta.total : (cuenta.monto !== null ? `L ${cuenta.monto}` : '')}
                             </td>
                             <td className="border text-center px-4 py-2"></td>
                             <td className="border text-center px-4 py-2"></td>
@@ -140,7 +140,7 @@ const CatalogoCuentas = () => {
                           <td className="border px-4 py-2"></td>
                           <td className="border px-4 py-2"></td>
                           <td className="border px-4 py-2 text-center">
-                            {cuentasAgrupadas[tipo].grupos[grupo].subgrupos[subgrupo].total}
+                            L {cuentasAgrupadas[tipo].grupos[grupo].subgrupos[subgrupo].total}
                           </td>
                           <td className="border px-4 py-2"></td>
                         </tr>
@@ -150,7 +150,7 @@ const CatalogoCuentas = () => {
                     <td className="w-1-12 border px-4 py-2"></td>
                     <td className="w-1-12 border px-4 py-2"></td>
                     <td className="w-1-12 border px-4 py-2 text-center">
-                      {cuentasAgrupadas[tipo].grupos[grupo].total}
+                      L {cuentasAgrupadas[tipo].grupos[grupo].total}
                     </td>
                   </tr>
                       </tbody>
@@ -158,19 +158,6 @@ const CatalogoCuentas = () => {
                   </div>
                 ))}
 
-                {/* <table className="min-w-full bg-gray-800 text-white shadow-md rounded-md mt-2">
-                  <tbody>
-                  <tr className="bg-gray-700">
-                    <td className="w-6-12 border px-4 py-2" colSpan={2}>Total del Grupo {grupo}</td>
-                    <td className="w-1-12 border px-4 py-2"></td>
-                    <td className="w-1-12 border px-4 py-2"></td>
-                    <td className="w-1-12 border px-4 py-2"></td>
-                    <td className="w-1-12 border px-4 py-2 text-right">
-                      {cuentasAgrupadas[tipo].grupos[grupo].total}
-                    </td>
-                  </tr>
-                  </tbody>
-                </table> */}
               </div>
             ))}
 
@@ -183,7 +170,7 @@ const CatalogoCuentas = () => {
                   <td className="w-1-12 px-4 py-2"></td>
                   <td className="w-1-12 px-4 py-2"></td>
                   <td className="w-1-12 px-11 py-2 text-center">
-                    {cuentasAgrupadas[tipo].total}
+                    L{cuentasAgrupadas[tipo].total}
                   </td>
                 </tr>
               </tbody>
@@ -198,7 +185,7 @@ const CatalogoCuentas = () => {
                     <td className="w-1-12 px-4 py-2"></td>
                     <td className="w-1-12 px-4 py-2"></td>
                     <td className="w-1-12 px-4 py-2"></td>
-                    <td className="w-1-12 px-10 py-2 text-center">{totalPasivoPatrimonio}</td>
+                    <td className="w-1-12 px-10 py-2 text-center">L{totalPasivoPatrimonio}</td>
                   </tr>
                 )}
               </tbody>
