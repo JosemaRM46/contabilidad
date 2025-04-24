@@ -267,7 +267,7 @@ const Page = () => {
           printColumnHeaders();
         }
   
-        doc.text(`    L ${grupo}`, colCodigo + 6, yPosition);
+        doc.text(`    Total Grupo: ${grupo}`, colCodigo + 6, yPosition);
         doc.text(`L ${totalSubgrupoGrupo.toFixed(2)}`, colNeto + 75, yPosition);
         yPosition += lineHeight;
   
